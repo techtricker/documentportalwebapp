@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import classNames from 'classnames'
 
 import {
@@ -17,7 +17,7 @@ import {
   CTableDataCell,
   CTableHead,
   CTableHeaderCell,
-  CTableRow,
+  CTableRow, CWidgetStatsB, CWidgetStatsF
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import {
@@ -40,8 +40,10 @@ import {
   cilCloudDownload,
   cilPeople,
   cilUser,
-  cilUserFemale,
+  cilUserFemale, cilSettings
 } from '@coreui/icons'
+
+import { useNavigate } from 'react-router-dom'
 
 import avatar1 from 'src/assets/images/avatars/1.jpg'
 import avatar2 from 'src/assets/images/avatars/2.jpg'
@@ -49,7 +51,7 @@ import avatar3 from 'src/assets/images/avatars/3.jpg'
 import avatar4 from 'src/assets/images/avatars/4.jpg'
 import avatar5 from 'src/assets/images/avatars/5.jpg'
 import avatar6 from 'src/assets/images/avatars/6.jpg'
-
+import { getDashboardDetails } from 'src/services/api';
 
 const Dashboard = () => {
   const progressExample = [
@@ -173,9 +175,87 @@ const Dashboard = () => {
     },
   ]
 
+  const [dashboard, setDashboard] = useState({});
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    fetchDashboard();
+  }, []);
+
+  const fetchDashboard = async () => {
+    const data = await getDashboardDetails();  // Call the getPanels API
+    console.log(JSON.parse(data.dashboard));
+    setDashboard(JSON.parse(data.dashboard));
+  }
+
   return (
     <>
-      Dashboard
+      <CRow xs={{ gutter: 4 }}>
+
+        {/* PANNELS */}
+        <CCol xs={12} sm={6} xl={4} xxl={3}>
+          <CWidgetStatsF
+            icon={<CIcon width={24} icon={cilSettings} size="xl" />}
+            title="pannels"
+            value={dashboard.total_panels}
+            color="success"
+            footer={
+              <CButton color="" size="sm" onClick={() => navigate('/panel-master')}>
+                View 
+              </CButton>
+            }
+          />
+        </CCol>
+        
+        {/* USERS */}
+        <CCol xs={12} sm={6} xl={4} xxl={3}>
+          <CWidgetStatsF
+            icon={<CIcon width={24} icon={cilSettings} size="xl" />}
+            title="users"
+            value={dashboard.total_users}
+            color="primary"
+            footer={
+              <CButton color="" size="sm" onClick={() => navigate('/users')}>
+                View
+              </CButton>
+            }
+          />
+        </CCol>
+
+        
+
+        {/* FILES */}
+        <CCol xs={12} sm={6} xl={4} xxl={3}>
+          <CWidgetStatsF
+            icon={<CIcon width={24} icon={cilSettings} size="xl" />}
+            title="files"
+            value={dashboard.total_files}
+            color="secondary"
+            footer={
+              <CButton color="" size="sm" onClick={() => navigate('/panel-master')}>
+                View 
+              </CButton>
+            }
+          />
+        </CCol>
+
+        {/* ASSIGNED USERS */}
+        <CCol xs={12} sm={6} xl={4} xxl={3}>
+          <CWidgetStatsF
+            icon={<CIcon width={24} icon={cilSettings} size="xl" />}
+            title="assigned users"
+            value={dashboard.assigned_users}
+            color="danger"
+            footer={
+              <CButton color="" size="sm" onClick={() => navigate('/users')}>
+                View 
+              </CButton>
+            }
+          />
+        </CCol>
+
+
+      </CRow>
     </>
   )
 }

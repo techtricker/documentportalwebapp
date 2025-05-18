@@ -102,40 +102,20 @@ const PanelMaster = () => {
               <CCard className="mb-4">
                 <CCardHeader>
                   <strong>All Panels</strong>
-                  <CButton color="primary" size="sm" className="float-end" onClick={() => setVisible(!visible)}>
-                    Add Panel
-                  </CButton>
                 </CCardHeader>
                 <CCardBody>
                 <CTable>
                   <CTableHead>
                     <CTableRow>
-                      <CTableHeaderCell scope="col">Panel Id</CTableHeaderCell>
                       <CTableHeaderCell scope="col">Panel Name</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Description</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Files</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
+                      <CTableHeaderCell scope="col">No. of Files</CTableHeaderCell>
                     </CTableRow>
                   </CTableHead>
                   <CTableBody>
                     {panels.map((panel, index) => (
                       <CTableRow key={panel.panel_id}>
-                        <CTableHeaderCell>{panel.panel_id}</CTableHeaderCell>
                         <CTableDataCell>{panel.panel_name}</CTableDataCell>
-                        <CTableDataCell>{panel.description || '-'}</CTableDataCell>
-                        <CTableDataCell>
-                        <CButton color="secondary" size="sm"  onClick={() => navigate('/files/'+panel.panel_id)}>
-                          View Files
-                        </CButton>
-                        </CTableDataCell>
-                        <CTableDataCell>
-                        <CButton size="sm"  onClick={() => editPanelMaster(panel.panel_id)}>
-                          <CIcon icon={cilPencil} size="sm" />
-                        </CButton>
-                        <CButton size="sm"  onClick={() => deletePanelMaster(panel.panel_id)}>
-                          <CIcon icon={cilTrash} size="sm" />
-                        </CButton>
-                        </CTableDataCell>
+                        <CTableDataCell>{panel.file_count}</CTableDataCell>
                       </CTableRow>
                     ))}
                   </CTableBody>

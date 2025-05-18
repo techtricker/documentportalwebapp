@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = 'http://13.203.228.41:8000';  // Replace with your backend API URL
+const API_URL = 'http://localhost:8000';  // Replace with your backend API URL
+
+//const API_URL = 'http://13.203.228.41:8000'; 
 
 // Axios instance with the base URL
 const api = axios.create({
@@ -51,6 +53,16 @@ export const updateUser = async (object,userId) => {
         return response.data;
     } catch (error) {
         console.error('Error: ', error);
+        throw error;
+    }
+};
+
+export const getDashboardDetails = async () => {
+    try {
+        const response = await api.get('/admin-dashboard');  // Assuming the endpoint for panels is '/panels'
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching panels: ', error);
         throw error;
     }
 };
@@ -173,5 +185,18 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Response interceptor to catch 401 errors (unauthorized / token expired)
+api.interceptors.response.use(
+    (response) => response, // just return the response if it's successful
+    (error) => {
+        if (error.response && error.response.status === 401) {
+        // Token is invalid or expired
+        localStorage.removeItem('token'); // Remove the token
+        window.location.reload();
+        }
+        return Promise.reject(error); // Pass the error to calling functions
+    }
+);
 
 export default api;

@@ -17,13 +17,19 @@ import {
   CModalTitle,
   CPopover,
   CTooltip,
-  CForm, CFormLabel, CFormInput, CFormText, CFormTextarea,CFormSelect
+  CForm, CFormLabel, CFormInput, CFormText, CFormTextarea,CFormSelect,
+  CAccordion,
+  CAccordionBody,
+  CAccordionHeader,
+  CAccordionItem,
 } from '@coreui/react'
 import { DocsComponents, DocsExample } from 'src/components'
 import { deleteUser, updateUser, getUsers, getPanels, createUser, getUserDetails, userAssignment } from 'src/services/api';
 import CIcon from '@coreui/icons-react'
 import { cilPencil, cilTrash } from '@coreui/icons';
 import { callToasterAlert } from '../toastUtils';
+import { MultiSelect } from "react-multi-select-component";
+
 
 const Users = () => {
 
@@ -39,6 +45,10 @@ const Users = () => {
   const [panels, setPanels] = useState([]);
   const [editUserId, setEditUserId] = useState('')
   const [isEditMode, setIsEditMode] = useState(false);
+  const [selected, setSelected] = useState([]);
+
+  //const options = [];
+  const [options, setOptions] = useState([]);
 
   useEffect(() => {
     setIsEditMode(false)
@@ -60,7 +70,9 @@ const Users = () => {
   const fetchUserDetails = async () => {
     try {
       const data = await getUserDetails();  // Call the getPanels API
+      //const data = await getUsers(); 
       setUserDetails(data);  // Store the response data in state
+      console.log(data);
     } catch (err) {
       setError('Failed to load panels');
       callToasterAlert("Internal server error", 2)
@@ -71,6 +83,13 @@ const Users = () => {
     try {
       const data = await getPanels();  // Call the getPanels API
       setPanels(data);  // Store the response data in state
+      const panelOptions = data.map(panel => ({
+        panel_name: panel.panel_name,  // or whatever field should be the label
+        panel_id: panel.panel_id ,    // or whatever field should be the value
+        label: panel.panel_name,  // or whatever field should be the label
+        value: panel.panel_id  
+      }));
+      setOptions(panelOptions);
     } catch (err) {
       setError('Failed to load panels');
       callToasterAlert("Internal server error", 2)
@@ -80,7 +99,6 @@ const Users = () => {
   const delete_User = async (userId) => {
     try {
       const data = await deleteUser(userId);  // Call the getPanels API
-      console.log(data)  // Store the response data in state
       callToasterAlert("Deleted successfully", 1)
       fetchUsers();
       fetchUserDetails();
@@ -109,8 +127,11 @@ const Users = () => {
         callToasterAlert("User updated successfully", 1)
       }
       else {
-        const response = await createUser({ name: userName, email_id: emailId, phone_number: phoneNumber });
-        const response1 = await userAssignment({user_id: response.user_id, panel_id: panelId});
+        const savePanel = selected.map(panel => ({
+          panel_name: panel.panel_name
+        }));
+        const response = await createUser({ name: userName, email_id: emailId, phone_number: phoneNumber, panels:savePanel });
+        //const response1 = await userAssignment({user_id: response.user_id, panel_id: panelId});
         callToasterAlert("User added successfully", 1)
       }
       setEditUserId('');
@@ -150,6 +171,20 @@ const Users = () => {
                   </CButton>
                 </CCardHeader>
                 <CCardBody>
+                <CAccordion activeItemKey={2}>
+                <CAccordionItem itemKey={1}>
+                  <CAccordionHeader>Accordion Item #1</CAccordionHeader>
+                  <CAccordionBody>
+                    <strong>This is the first item&#39;s accordion body.</strong> It is hidden by
+                    default, until the collapse plugin adds the appropriate classes that we use to
+                    style each element. These classes control the overall appearance, as well as the
+                    showing and hiding via CSS transitions. You can modify any of this with custom
+                    CSS or overriding our default variables. It&#39;s also worth noting that just
+                    about any HTML can go within the <code>.accordion-body</code>, though the
+                    transition does limit overflow.
+                  </CAccordionBody>
+                </CAccordionItem>
+                </CAccordion>
                 <CTable>
                   <CTableHead>
                     <CTableRow>
@@ -193,59 +228,67 @@ const Users = () => {
             </CCol>
           </CRow>
 
-          <CModal alignment="center" visible={visible} onClose={() => closeUserModel()}>
+          <CModal size="lg" visible={visible} onClose={() => closeUserModel()}>
             <CModalHeader>
               <CModalTitle>Add User</CModalTitle>
             </CModalHeader>
             <CModalBody>
               <CForm>
-                <div className="mb-3">
-                  <CFormLabel htmlFor="username">Name</CFormLabel>
-                  <CFormInput
-                    type="text"
-                    id="username"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                  />
-                </div>
-                <div className="mb-3">
-                  <CFormLabel htmlFor="email_id">Email Id</CFormLabel>
-                  <CFormInput
-                    type="text"
-                    id="email_id"
-                    value={emailId}
-                    onChange={(e) => setEmailid(e.target.value)}
-                  />
-                </div>
-                <div className="mb-3">
-                  <CFormLabel htmlFor="phone_number">Phone Number</CFormLabel>
-                  <CFormInput
-                    type="text"
-                    id="phone_number"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                  />
-                </div>
-
-                {!isEditMode && (
-                <div className="mb-3">
-                  <CFormLabel htmlFor="panel_select">Panel</CFormLabel>
-                  <CFormSelect
-                    id="panel_select"
-                    size="sm"
-                    aria-label="Default select example"
-                    onChange={(e) => setPanelId(e.target.value)}
-                  >
-                    <option value="0">Select one</option>
-                    {panels.map((panel, index) => (
-                      <option key={panel.panel_id} value={panel.panel_id}>
-                        {panel.panel_name}
-                      </option>
-                    ))}
-                  </CFormSelect>
-                </div>
-              )}
-                
+              <CRow className="g-3">
+                <CCol xs>
+                    <CFormLabel htmlFor="username">Name</CFormLabel>
+                    <CFormInput
+                      type="text"
+                      id="username"
+                      value={userName}
+                      onChange={(e) => setUserName(e.target.value)}
+                    />
+                  </CCol>
+                </CRow>
+                <CRow className="g-3">
+                  <CCol xs>
+                    <CFormLabel htmlFor="email_id">Email Id</CFormLabel>
+                    <CFormInput
+                      type="text"
+                      id="email_id"
+                      value={emailId}
+                      onChange={(e) => setEmailid(e.target.value)}
+                    />
+                  </CCol>
+                  <CCol xs>
+                    <CFormLabel htmlFor="phone_number">Phone Number</CFormLabel>
+                    <CFormInput
+                      type="text"
+                      id="phone_number"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                    />
+                  </CCol>
+                </CRow>
+                <CRow>
+                  <CCol xs>
+                    <CFormLabel htmlFor="panel_select">Panel</CFormLabel>
+                    <MultiSelect
+                        options={options}
+                        value={selected}
+                        onChange={setSelected}
+                        labelledBy="Select"
+                      />
+                    {/* <CFormSelect
+                      id="panel_select"
+                      size="sm"
+                      aria-label="Default select example"
+                      onChange={(e) => setPanelId(e.target.value)}
+                    >
+                      <option value="0">Select one</option>
+                      {panels.map((panel, index) => (
+                        <option key={panel.panel_id} value={panel.panel_id}>
+                          {panel.panel_name}
+                        </option>
+                      ))}
+                    </CFormSelect> */}
+                  </CCol>
+                </CRow>
               </CForm>
             </CModalBody>
             <CModalFooter>
