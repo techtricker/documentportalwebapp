@@ -10,7 +10,7 @@ import 'react-pdf/dist/esm/Page/TextLayer.css'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`
 
-const PDFViewer = ({ fileId }) => {
+const PDFViewer = ({ fileName, panelName, fileId }) => {
   const [pdfUrl, setPdfUrl] = useState(null)
   const [numPages, setNumPages] = useState(null)
 
@@ -18,7 +18,7 @@ const PDFViewer = ({ fileId }) => {
     
     const fetchPDF = async () => {
       try {
-        const response = await fetch(`http://13.203.228.41:8000/view-file/${fileId}`)
+        const response = await fetch(`http://localhost:8000/view-file/${panelName}/${fileName}`)
         const blob = await response.blob()
         setPdfUrl(URL.createObjectURL(blob))
       } catch (err) {

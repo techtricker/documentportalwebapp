@@ -27,6 +27,7 @@ const FileViewer = () => {
   const [visible, setVisible] = useState(false)
   const [fileMetaId, setFileMetaId] = useState(0)
   const [activeFileName, setActiveFileName] = useState('PDF Viewer')
+  const [activePanelName, setActivePanelName] = useState('')
 
     useEffect(() => {
         //console.log("jwtToken",jwtToken)
@@ -37,7 +38,7 @@ const FileViewer = () => {
         try {
           const data = await getAssignedFiles(token);  // Call the getPanels API
           setAssignedFiles(data.files);  // Store the response data in state
-          console.log(data);
+          setActivePanelName(data.panel_name);
         } catch (err) {
           callToasterAlert("Session Expired! Scan again to continue!", 2)
           setAssignedFiles([]);
@@ -96,7 +97,7 @@ const FileViewer = () => {
                     <CModalTitle>{activeFileName}</CModalTitle>
                   </CModalHeader>
                   <CModalBody>
-                    <PDFViewer fileId={fileMetaId} />
+                    <PDFViewer fileName={activeFileName} panelName={activePanelName} fileId={fileMetaId} />
                   </CModalBody>
                   <CModalFooter>
                     <CButton color="secondary" onClick={() => closeViewer()}>

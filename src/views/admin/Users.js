@@ -6,8 +6,8 @@ import {
   CCard,
   CCardBody,
   CCardHeader,
-  CCol,
-  CRow,
+  CCol,  CCardTitle, CCardSubtitle, CCardText, CCardLink,
+  CRow,CWidgetStatsF,
   CLink,CTable, CTableHead, CTableBody, CTableRow, CTableHeaderCell,CTableDataCell,
   CButton, 
   CModal,
@@ -21,12 +21,12 @@ import {
   CAccordion,
   CAccordionBody,
   CAccordionHeader,
-  CAccordionItem,
+  CAccordionItem, CCardImage
 } from '@coreui/react'
 import { DocsComponents, DocsExample } from 'src/components'
 import { deleteUser, updateUser, getUsers, getPanels, createUser, getUserDetails, userAssignment } from 'src/services/api';
 import CIcon from '@coreui/icons-react'
-import { cilPencil, cilTrash } from '@coreui/icons';
+import { cilPencil, cilTrash, cilSettings, cilUser } from '@coreui/icons';
 import { callToasterAlert } from '../toastUtils';
 import { MultiSelect } from "react-multi-select-component";
 
@@ -46,6 +46,8 @@ const Users = () => {
   const [editUserId, setEditUserId] = useState('')
   const [isEditMode, setIsEditMode] = useState(false);
   const [selected, setSelected] = useState([]);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState(null);
 
   //const options = [];
   const [options, setOptions] = useState([]);
@@ -59,7 +61,7 @@ const Users = () => {
 
   const fetchUsers = async () => {
     try {
-      const data = await getUsers();  // Call the getPanels API
+      const data = await getUserDetails();  // Call the getPanels API
       setUsers(data);  // Store the response data in state
     } catch (err) {
       setError('Failed to load panels');
@@ -85,9 +87,9 @@ const Users = () => {
       setPanels(data);  // Store the response data in state
       const panelOptions = data.map(panel => ({
         panel_name: panel.panel_name,  // or whatever field should be the label
-        panel_id: panel.panel_id ,    // or whatever field should be the value
+        panel_id: panel.panel_name ,    // or whatever field should be the value
         label: panel.panel_name,  // or whatever field should be the label
-        value: panel.panel_id  
+        value: panel.panel_name  
       }));
       setOptions(panelOptions);
     } catch (err) {
@@ -111,9 +113,18 @@ const Users = () => {
   const editUser = async (userId) => {
     setIsEditMode(true);
     setEditUserId(userId);
+    setSelected([]);
     const selectedPanel = users.find((panel) => panel.user_id === userId);
     if (selectedPanel) {
-      setUserName(selectedPanel.name);
+      console.log(selectedPanel);
+      const selectObj = selectedPanel.assignments.map(panel => ({
+        panel_name: panel.panel_name,  // or whatever field should be the label
+        panel_id: panel.panel_name ,    // or whatever field should be the value
+        label: panel.panel_name,  // or whatever field should be the label
+        value: panel.panel_name  
+      }));
+      setSelected(selectObj);
+      setUserName(selectedPanel.user_name);
       setEmailid(selectedPanel.email_id);
       setPhoneNumber(selectedPanel.phone_number);
       setVisible(true);
@@ -123,7 +134,10 @@ const Users = () => {
   const saveUser = async () => {
     try {
       if(isEditMode) {
-        const response = await updateUser({ name: userName, email_id: emailId, phone_number: phoneNumber }, editUserId);
+        const savePanel = selected.map(panel => ({
+          panel_name: panel.panel_name
+        }));
+        const response = await updateUser({ name: userName, email_id: emailId, phone_number: phoneNumber, panels:savePanel }, editUserId);
         callToasterAlert("User updated successfully", 1)
       }
       else {
@@ -139,10 +153,10 @@ const Users = () => {
       setEmailid('');
       setPhoneNumber('');
       setVisible(false);
-      const updatedUsers = await getUsers();
-      setUsers(updatedUsers); // Refresh list
+      fetchUsers();
       fetchUserDetails();
-      setIsEditMode(false)
+      setIsEditMode(false),
+      setSelected([])
     } catch (err) {
       console.error('Failed to save panel:', err);
       setError('Failed to save panel');
@@ -159,6 +173,22 @@ const Users = () => {
     setVisible(false)
   }
 
+  const handleDeleteClick = (userId) => {
+    setSelectedUserId(userId);
+    setShowDeleteModal(true);
+  };
+
+  
+  const confirmDelete = async () => {
+    try {
+      delete_User(selectedUserId);
+      setShowDeleteModal(false);
+      setSelectedUserId(null);
+    } catch (error) {
+      console.error("Failed to delete user", error);
+    }
+  };
+
   return (
     <>
       <CRow>
@@ -171,58 +201,45 @@ const Users = () => {
                   </CButton>
                 </CCardHeader>
                 <CCardBody>
-                <CAccordion activeItemKey={2}>
-                <CAccordionItem itemKey={1}>
-                  <CAccordionHeader>Accordion Item #1</CAccordionHeader>
-                  <CAccordionBody>
-                    <strong>This is the first item&#39;s accordion body.</strong> It is hidden by
-                    default, until the collapse plugin adds the appropriate classes that we use to
-                    style each element. These classes control the overall appearance, as well as the
-                    showing and hiding via CSS transitions. You can modify any of this with custom
-                    CSS or overriding our default variables. It&#39;s also worth noting that just
-                    about any HTML can go within the <code>.accordion-body</code>, though the
-                    transition does limit overflow.
-                  </CAccordionBody>
-                </CAccordionItem>
-                </CAccordion>
-                <CTable>
-                  <CTableHead>
-                    <CTableRow>
-                      <CTableHeaderCell scope="col">User Id</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Name</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Panel Name</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Secret Code</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">QR Code</CTableHeaderCell>
-                      <CTableHeaderCell scope="col">Action</CTableHeaderCell>
-                    </CTableRow>
-                  </CTableHead>
-                  <CTableBody>
-                    {userDetails.map((panel, index) => (
-                      <CTableRow key={panel.user_id+'_user'}>
-                        <CTableHeaderCell>{panel.user_id}</CTableHeaderCell>
-                        <CTableDataCell>{panel.user_name}</CTableDataCell>
-                        <CTableDataCell>{panel.panel_name || '-'}</CTableDataCell>
-                        <CTableDataCell>{panel.secret_code || '-'}</CTableDataCell>
-                        <CTableDataCell>
-                        <a
-                          href={`data:image/png;base64,${panel.qr_code_base64}`}
-                          download={`${panel.panel_name}_${panel.user_name}.png`}
-                        >
-                          Download
-                        </a>
-                        </CTableDataCell>
-                        <CTableDataCell>
-                            <CButton size="sm"  onClick={() => editUser(panel.user_id)}>
-                              <CIcon icon={cilPencil} size="sm" />
-                            </CButton>
-                            <CButton size="sm"  onClick={() => delete_User(panel.user_id)}>
-                              <CIcon icon={cilTrash} size="sm" />
-                            </CButton>
-                            </CTableDataCell>
-                      </CTableRow>
+                <CRow xs={{ gutter: 4 }}>
+                  {userDetails.map((panel, index) => (
+                      <CCol xs={12} sm={12} xl={6} xxl={6}>
+                        <CAccordion activeItemKey={0}>
+                          <CAccordionItem itemKey={panel.user_id}>
+                          <CAccordionHeader>
+                          <div className="d-flex w-100 justify-content-between align-items-center">
+                            <span> <CIcon icon={cilUser} size="sm" /> {panel.user_name}  (No. of panels assigned - {panel.assignments.length})</span>
+                            <div>
+                                <CButton size="sm"  onClick={() => editUser(panel.user_id)}>
+                                  <CIcon icon={cilPencil} size="sm" />
+                                </CButton>
+                                <CButton size="sm"  onClick={() => handleDeleteClick(panel.user_id)}>
+                                  <CIcon icon={cilTrash} size="sm" />
+                                </CButton>
+                            </div>
+                          </div>
+                        </CAccordionHeader>
+                            <CAccordionBody>
+                              <CRow xs={{ gutter: 4 }}>
+                              {panel.assignments.map((p, idx) => (
+                                <CCol xs={12} sm={6} xl={6} xxl={6}>
+                                  <CCard className="mb-3">
+                                      <CCardBody>
+                                        <CCardTitle>{p.panel_name}</CCardTitle>
+                                        <CCardText>Secret Code: {p.secret_code}</CCardText>
+                                        <CCardLink href={`data:image/png;base64,${p.qr_code_base64}`}
+                                  download={`${p.panel_name}_${panel.user_name}.png`}>Download QR Code</CCardLink>
+                                      </CCardBody>
+                                  </CCard>
+                                </CCol>
+                              ))}
+                              </CRow>
+                            </CAccordionBody>
+                          </CAccordionItem>
+                        </CAccordion>
+                        </CCol>
                     ))}
-                  </CTableBody>
-                </CTable>
+                </CRow>
                 </CCardBody>
               </CCard>
             </CCol>
@@ -297,6 +314,24 @@ const Users = () => {
               </CButton>
               <CButton color="primary" onClick={saveUser}>
                 Save changes
+              </CButton>
+            </CModalFooter>
+          </CModal>
+
+
+          <CModal visible={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
+            <CModalHeader>
+              <CModalTitle>Confirm Deletion</CModalTitle>
+            </CModalHeader>
+            <CModalBody>
+              Are you sure you want to delete this user?
+            </CModalBody>
+            <CModalFooter>
+              <CButton color="secondary" onClick={() => setShowDeleteModal(false)}>
+                Cancel
+              </CButton>
+              <CButton color="danger" onClick={() => confirmDelete()}>
+                Delete
               </CButton>
             </CModalFooter>
           </CModal>
