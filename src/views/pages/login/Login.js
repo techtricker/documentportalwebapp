@@ -11,11 +11,13 @@ import {
   CFormInput,
   CInputGroup,
   CInputGroupText,
-  CRow,
+  CRow, CImage
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
 import { login } from '../../../services/api' 
+import HzLogo5 from 'src/assets/images/hz_logo_5.png'
+import 'src/scss/QRCodeCss.scss'
 
 const Login = () => {
   const [username, setUsername] = useState('')
@@ -36,13 +38,25 @@ const Login = () => {
     <div className="bg-body-tertiary min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
-          <CCol md={8}>
+          <CCol md={6}>
             <CCardGroup>
-              <CCard className="p-4">
+              <CCard className="p-4 LoginPageCardBorder">
                 <CCardBody>
+                  <CCard className="text-white py-5 LoginPageCardBorder" style={{ width: '100%', borderColor:"#fff !important" }}>
+                    <CCardBody className="text-center">
+                      <div>
+                        <CImage
+                          rounded
+                          src={HzLogo5}
+                          style={{width:"100%"}}
+                          alt="Hertz Logo"
+                        />
+                      </div>
+                    </CCardBody>
+                  </CCard>
                   <CForm onSubmit={handleLogin}>
-                    <h1>Login</h1>
-                    <p className="text-body-secondary">Sign In to your account</p>
+                    <h1 style={{textAlign: "center"}}>Login</h1>
+                    <p style={{textAlign: "center"}} className="text-body-secondary">Sign In to your account</p>
                     <CInputGroup className="mb-3">
                       <CInputGroupText>
                         <CIcon icon={cilUser} />
@@ -67,8 +81,10 @@ const Login = () => {
                       />
                     </CInputGroup>
                     <CRow>
-                      <CCol xs={6}>
-                        <CButton type="submit" color="primary" className="px-4">
+                      <CCol xs={8}>
+                      </CCol>
+                      <CCol xs={4}>
+                        <CButton style={{float:"right", color:"#fff"}} type="submit" color="success" className="px-4">
                           Login
                         </CButton>
                       </CCol>

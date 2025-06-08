@@ -112,12 +112,26 @@ const PanelMaster = () => {
                     </CTableRow>
                   </CTableHead>
                   <CTableBody>
-                    {panels.map((panel, index) => (
+                    {/* {panels.map((panel, index) => (
                       <CTableRow key={panel.panel_id}>
                         <CTableDataCell>{panel.panel_name}</CTableDataCell>
                         <CTableDataCell>{panel.file_count}</CTableDataCell>
                       </CTableRow>
-                    ))}
+                    ))} */}
+                    {panels.length > 0 ? (
+                      panels.map((panel, index) => (
+                        <CTableRow key={panel.panel_id}>
+                          <CTableDataCell>{panel.panel_name}</CTableDataCell>
+                          <CTableDataCell>{panel.file_count}</CTableDataCell>
+                        </CTableRow>
+                      ))
+                    ) : (
+                      <CTableRow>
+                        <CTableDataCell colSpan={2} className="text-center">
+                          No record found
+                        </CTableDataCell>
+                      </CTableRow>
+                    )}
                   </CTableBody>
                 </CTable>
                 </CCardBody>

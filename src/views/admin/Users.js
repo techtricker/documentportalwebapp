@@ -87,9 +87,9 @@ const Users = () => {
       setPanels(data);  // Store the response data in state
       const panelOptions = data.map(panel => ({
         panel_name: panel.panel_name,  // or whatever field should be the label
-        panel_id: panel.panel_name ,    // or whatever field should be the value
+        panel_id: panel.panel_id ,    // or whatever field should be the value
         label: panel.panel_name,  // or whatever field should be the label
-        value: panel.panel_name  
+        value: panel.panel_id  
       }));
       setOptions(panelOptions);
     } catch (err) {
@@ -119,9 +119,9 @@ const Users = () => {
       console.log(selectedPanel);
       const selectObj = selectedPanel.assignments.map(panel => ({
         panel_name: panel.panel_name,  // or whatever field should be the label
-        panel_id: panel.panel_name ,    // or whatever field should be the value
+        panel_id: panel.panel_id ,    // or whatever field should be the value
         label: panel.panel_name,  // or whatever field should be the label
-        value: panel.panel_name  
+        value: panel.panel_id  
       }));
       setSelected(selectObj);
       setUserName(selectedPanel.user_name);
@@ -135,14 +135,14 @@ const Users = () => {
     try {
       if(isEditMode) {
         const savePanel = selected.map(panel => ({
-          panel_name: panel.panel_name
+          panel_id: panel.panel_id
         }));
         const response = await updateUser({ name: userName, email_id: emailId, phone_number: phoneNumber, panels:savePanel }, editUserId);
         callToasterAlert("User updated successfully", 1)
       }
       else {
         const savePanel = selected.map(panel => ({
-          panel_name: panel.panel_name
+          panel_id: panel.panel_id
         }));
         const response = await createUser({ name: userName, email_id: emailId, phone_number: phoneNumber, panels:savePanel });
         //const response1 = await userAssignment({user_id: response.user_id, panel_id: panelId});
@@ -202,23 +202,26 @@ const Users = () => {
                 </CCardHeader>
                 <CCardBody>
                 <CRow xs={{ gutter: 4 }}>
-                  {userDetails.map((panel, index) => (
-                      <CCol xs={12} sm={12} xl={6} xxl={6}>
+                  {userDetails.length > 0 ? (
+                    userDetails.map((panel, index) => (
+                      <CCol xs={12} sm={12} xl={6} xxl={6} key={index}>
                         <CAccordion activeItemKey={0}>
                           <CAccordionItem itemKey={panel.user_id}>
-                          <CAccordionHeader>
-                          <div className="d-flex w-100 justify-content-between align-items-center">
-                            <span> <CIcon icon={cilUser} size="sm" /> {panel.user_name}  (No. of panels assigned - {panel.assignments.length})</span>
-                            <div>
-                                <CButton size="sm"  onClick={() => editUser(panel.user_id)}>
-                                  <CIcon icon={cilPencil} size="sm" />
-                                </CButton>
-                                <CButton size="sm"  onClick={() => handleDeleteClick(panel.user_id)}>
-                                  <CIcon icon={cilTrash} size="sm" />
-                                </CButton>
-                            </div>
-                          </div>
-                        </CAccordionHeader>
+                            <CAccordionHeader>
+                              <div className="d-flex w-100 justify-content-between align-items-center">
+                                <span> <CIcon icon={cilUser} size="sm" /> {panel.user_name}  (No. of panels assigned - {panel.assignments.length})</span>
+                                <div>
+                                    {/* <CButton size="sm"  onClick={() => editUser(panel.user_id)}>
+                                      <CIcon icon={cilPencil} size="sm" />
+                                    </CButton>
+                                    <CButton size="sm"  onClick={() => handleDeleteClick(panel.user_id)}>
+                                      <CIcon icon={cilTrash} size="sm" />
+                                    </CButton> */}
+                                    <CIcon icon={cilPencil} style={{marginRight: "7px", cursor: "default"}} size="sm" onClick={() => editUser(panel.user_id)}/>
+                                    <CIcon icon={cilTrash} style={{marginRight: "7px", cursor: "default"}} size="sm" onClick={() => handleDeleteClick(panel.user_id)}/>
+                                </div>
+                              </div>
+                            </CAccordionHeader>
                             <CAccordionBody>
                               <CRow xs={{ gutter: 4 }}>
                               {panel.assignments.map((p, idx) => (
@@ -237,8 +240,14 @@ const Users = () => {
                             </CAccordionBody>
                           </CAccordionItem>
                         </CAccordion>
-                        </CCol>
-                    ))}
+                      </CCol>
+                    ))
+                  ) : (
+                    <CCol xs={12} sm={12} xl={12} xxl={12} key="no-record">
+                      No record found
+                    </CCol>
+                  )}
+                  
                 </CRow>
                 </CCardBody>
               </CCard>
@@ -257,7 +266,7 @@ const Users = () => {
                     <CFormInput
                       type="text"
                       id="username"
-                      value={userName}
+                      value={userName} autoComplete="off"
                       onChange={(e) => setUserName(e.target.value)}
                     />
                   </CCol>
@@ -268,7 +277,7 @@ const Users = () => {
                     <CFormInput
                       type="text"
                       id="email_id"
-                      value={emailId}
+                      value={emailId} autoComplete="off"
                       onChange={(e) => setEmailid(e.target.value)}
                     />
                   </CCol>
@@ -277,7 +286,7 @@ const Users = () => {
                     <CFormInput
                       type="text"
                       id="phone_number"
-                      value={phoneNumber}
+                      value={phoneNumber} autoComplete="off"
                       onChange={(e) => setPhoneNumber(e.target.value)}
                     />
                   </CCol>

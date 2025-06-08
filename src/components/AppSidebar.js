@@ -7,7 +7,7 @@ import {
   CSidebarBrand,
   CSidebarFooter,
   CSidebarHeader,
-  CSidebarToggler,
+  CSidebarToggler, CImage
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 
@@ -15,6 +15,8 @@ import { AppSidebarNav } from './AppSidebarNav'
 
 import { logo } from 'src/assets/brand/logo'
 import { sygnet } from 'src/assets/brand/sygnet'
+
+import HzLogo5 from 'src/assets/images/hz_logo_5.png'
 
 // sidebar nav config
 import navigation from '../_nav'
@@ -41,7 +43,12 @@ const AppSidebar = () => {
           <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />
         </CSidebarBrand> */}
         <CSidebarBrand to="/">
-          Company Name
+          <CImage
+            rounded
+            src={HzLogo5}
+            style={{width:"100%"}}
+            alt="Hertz Logo"
+          />
           {/* <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} />
           <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} /> */}
         </CSidebarBrand>
