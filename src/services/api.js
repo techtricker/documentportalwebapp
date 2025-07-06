@@ -27,6 +27,16 @@ export const login = async (username, password) => {
   }
 };
 
+export const userScalLog = async (userAssignId, secretCode, verificationStatus) => {
+  try {
+    const response = await api.post('/user-scan-log', JSON.stringify({ user_assignment_id: userAssignId, secret_code: secretCode, verification_status: verificationStatus }));
+    return response.data;
+  } catch (error) {
+    console.error('User Scan Log Error: ', error);
+    throw error;
+  }
+};
+
 export const getUserDetails = async () => {
     try {
         const response = await api.get('/user-details');  // Assuming the endpoint for panels is '/panels'

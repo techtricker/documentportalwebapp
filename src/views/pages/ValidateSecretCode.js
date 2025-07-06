@@ -15,7 +15,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
-import { verifySecretCode } from '../../services/api' 
+import { verifySecretCode, userScalLog } from '../../services/api' 
 import { callToasterAlert } from '../toastUtils';
 import HzLogo5 from 'src/assets/images/hz_logo_5.png'
 import 'src/scss/QRCodeCss.scss'
@@ -26,8 +26,15 @@ const ValidateSecretCode = () => {
   const navigate = useNavigate()
 
     useEffect(() => {
-        
+        saveUserLog(code);
     }, [code])
+
+  const saveUserLog = async(secCode) => {
+    const bytes = Uint8Array.from(atob(secCode), c => c.charCodeAt(0));
+    const decoded = new TextDecoder().decode(bytes);
+    const response = await userScalLog(0, decoded, '3');
+    console.log(response);
+  }
 
   const handleLogin = async (e) => {
     e.preventDefault()
