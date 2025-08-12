@@ -14,7 +14,7 @@ const PDFViewer = ({ fileName, panelName, fileId }) => {
     const fetchPDF = async () => {
       try {
         //const response = await fetch(`http://103.16.202.161:8899/view-file/${panelName}/${fileName}`)
-        const response = await fetch(`http://localhost:8000/view-file/${panelName}/${fileName}`)
+        const response = await fetch(`http://59.90.12.58:8080/view-file/${panelName}/${fileName}`)
         if (!response.ok) throw new Error('Network response was not ok')
 
         const contentLength = response.headers.get('content-length')

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000';  // Replace with your backend API URL
+const API_URL = 'http://59.90.12.58:8080';  // Replace with your backend API URL
 
 //const API_URL = 'http://103.16.202.161:8899/'; 
 
