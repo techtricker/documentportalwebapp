@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = 'http://59.90.12.58:8080';  // Replace with your backend API URL
+//const API_URL = 'https://api.hertzelectricals.in';  // Replace with your backend API URL
+
+const API_URL = 'http://127.0.0.1:8000';
 
 //const API_URL = 'http://103.16.202.161:8899/'; 
 
@@ -127,6 +129,26 @@ export const createUser = async (object) => {
     }
 };
 
+export const qrOtpGeneratorAPICall = async (object) => {
+    try {
+        const response = await api.post('/qr/initiate', object);  
+        return response.data;
+    } catch (error) {
+        console.error('Error: ', error);
+        throw error;
+    }
+};
+
+export const qrOTPValidatorAPICall = async (object) => {
+    try {
+        const response = await api.post('/qr/verify-otp', object);  
+        return response.data;
+    } catch (error) {
+        console.error('Error: ', error);
+        throw error;
+    }
+};
+
 export const userAssignment = async (object) => {
     try {
         const response = await api.post('/user-assignment', object);  
@@ -187,14 +209,52 @@ export const getAssignedFiles = async (object) => {
     }
 };
 
+export const getPanelQr = async (panelId) => {
+    try {
+        const response = await api.get(`/panels/${panelId}/qr`);  // Assuming the endpoint for panels is '/panels'
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching panels: ', error);
+        throw error;
+    }
+};
+
+export const panelAccessInitiate = async (payload) => {
+  const response = await api.post('/panel-access/initiate', payload)
+  return response.data
+}
+
+export const getPanelFilesForViewer = async () => {
+  const response = await api.post('/get-assigned-files') // no slash, no body
+  return response.data
+}
+
+/**
+ * Verify OTP for panel access
+ */
+export const panelAccessVerifyOtp = async (payload) => {
+  const response = await api.post('/panel-access/verify-otp', payload)
+  return response.data
+}
+
 // Add Authorization header to requests
+// api.interceptors.request.use((config) => {
+//   const token = localStorage.getItem('token');
+//   if (token) {
+//     config.headers['Authorization'] = `Bearer ${token}`;
+//   }
+//   return config;
+// });
+
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token =
+    localStorage.getItem('access_token') || localStorage.getItem('token')
+
   if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`;
+    config.headers.Authorization = `Bearer ${token}`
   }
-  return config;
-});
+  return config
+})
 
 // Response interceptor to catch 401 errors (unauthorized / token expired)
 api.interceptors.response.use(

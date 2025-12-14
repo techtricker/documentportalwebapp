@@ -22,6 +22,7 @@ import PDFViewer from '../../components/PDFViewer'
 import { callToasterAlert } from '../toastUtils';
 import HzLogo5 from 'src/assets/images/hz_logo_5.png'
 import 'src/scss/QRCodeCss.scss'
+import { getPanelFilesForViewer } from '../../services/api'
 
 const FileViewer = () => {
   const [assignedFiles, setAssignedFiles] = useState([])
@@ -36,10 +37,14 @@ const FileViewer = () => {
 
     useEffect(() => {
         //console.log("jwtToken",jwtToken)
+        localStorage.setItem('token', jwtToken);
         fetchAssignedFiles(jwtToken);
     }, [jwtToken])
 
+  
+
     useEffect(() => {
+      //fetchAssignedFiles()
       const toggleVisibility = () => {
         setVisibleScrollTop(window.pageYOffset > 300)
       }
@@ -62,6 +67,17 @@ const FileViewer = () => {
           setAssignedFiles([]);
         }
       };
+
+    // const fetchAssignedFiles = async () => {
+    //   try {
+    //     const data = await getPanelFilesForViewer()
+    //     setAssignedFiles(data.files)
+    //     setActivePanelName(data.panel_name)
+    //   } catch (err) {
+    //     callToasterAlert("Session Expired! Scan again to continue!", 2)
+    //     setAssignedFiles([])
+    //   }
+    // }
 
     const closeViewer = async() => {
       setFileMetaId(0); 
